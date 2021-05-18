@@ -7,30 +7,34 @@ use Laravel\Nova\ResourceTool;
 class Plan extends ResourceTool
 {
     /**
-    * Subscription constructor.
-    *
-    * @param string $subscription
-    */
+     * Subscription constructor.
+     *
+     * @param string $subscription
+     */
     public function __construct(array $plans)
     {
         parent::__construct();
 
+        $this->plan_title();
+
         $this->withMeta([
             'plans' => $plans,
-            'card_last_four' => \Auth::user()->owner->card_last_four,
-            'subscription_plan' =>  \Auth::user()->owner->subscriptions()->first(),
+            'card_last_four' => auth()->user()->card_last_four,
+            'subscription_plan' =>  auth()->user()->subscriptions()->first(),
         ]);
         // $this->withMeta(compact('plans'));
     }
 
     /**
-     * Get the displayable name of the resource tool.
+     * Get the displayable title of the field
      *
      * @return string
      */
-    public function name()
+    public function title($title)
     {
-        return 'Nova Cashier Plan';
+        return $this->withMeta([
+            'title' => $title,
+        ]);
     }
 
     /**

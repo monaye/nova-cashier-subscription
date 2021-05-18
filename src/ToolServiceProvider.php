@@ -9,6 +9,9 @@ use Laravel\Nova\Nova;
 
 class ToolServiceProvider extends ServiceProvider
 {
+
+    public static $slug = 'nova-cashier-subscription';
+
     /**
      * Bootstrap any application services.
      *
@@ -20,10 +23,14 @@ class ToolServiceProvider extends ServiceProvider
             $this->routes();
         });
 
+        $this->publishes([
+            __DIR__ . '/../config/' . self::$slug . '.php' => config_path(self::$slug . '.php'),
+        ]);
+
         Nova::serving(function (ServingNova $event) {
-            Nova::script('nova-cashier-subscription', __DIR__.'/../dist/js/tool.js');
-            Nova::script('nova-cashier-subscription-stripe', 'https://js.stripe.com/v3/');
-            Nova::style('nova-cashier-subscription', __DIR__.'/../dist/css/tool.css');
+            Nova::script(self::$slug, __DIR__ . '/../dist/js/tool.js');
+            Nova::script(self::$slug . '-stripe', 'https://js.stripe.com/v3/');
+            Nova::style(self::$slug, __DIR__ . '/../dist/css/tool.css');
         });
     }
 
@@ -39,8 +46,8 @@ class ToolServiceProvider extends ServiceProvider
         }
 
         Route::middleware(['nova'])
-                ->prefix('nova-vendor/nova-cashier-subscription')
-                ->group(__DIR__.'/../routes/api.php');
+            ->prefix('nova-vendor/' . self::$slug)
+            ->group(__DIR__ . '/../routes/api.php');
     }
 
     /**
@@ -50,6 +57,9 @@ class ToolServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/' . self::$slug . '.php',
+            self::$slug
+        );
     }
 }

@@ -1,16 +1,22 @@
 <template>
   <div>
-    <heading class="mb-6">Nova Credit Card</heading>
+    <heading v-if="title" class="mb-6">{{ title }}</heading>
     <loading-card :loading="loading" class="px-6 py-4">
       <div v-if="this.getCardLastFour" class="flex">
         <div class="w-1/4 py-4 max-w-sm"></div>
         <div class="w-3/4 py-4">
-          Currently register credit card {{ this.getCardLastFour }}
+          {{
+            __("Currently register credit card :cardNumber", {
+              cardNumber: this.getCardLastFour,
+            })
+          }}
         </div>
       </div>
       <div class="flex">
         <div class="w-1/4 py-4">
-          <h4 class="font-normal text-80">Card Information</h4>
+          <h4 class="font-normal text-80">
+            {{ __("Credit Card Information") }}
+          </h4>
         </div>
 
         <div class="w-3/4 py-4 max-w-sm">
@@ -19,10 +25,21 @@
               <!-- A Stripe Element will be inserted here. -->
             </div>
             <!-- Used to display form errors. -->
-            <div class="mt-6 text-danger" id="card-errors" role="alert"></div>
+            <div
+              class="mt-6 text-danger"
+              v-if="errorMessage"
+              id="card-errors"
+              role="alert"
+            >
+              {{ errorMessage }}
+            </div>
             <div class="mt-6 pt-6">
-              <button type="submit" class="btn btn-default btn-primary">
-                Update Card
+              <button
+                dusk="submit-update-credit-card"
+                type="submit"
+                class="btn btn-default btn-primary"
+              >
+                {{ __("Update Credit Card") }}
               </button>
             </div>
           </form>
@@ -59,6 +76,7 @@ export default {
       stripeCard: null,
       cardLastFour: null,
       clientSecret: null,
+      errorMessage: null,
     };
   },
   computed: {
@@ -71,13 +89,20 @@ export default {
     getClientSecret() {
       return this.clientSecret || this.panel.fields[0].client_secret;
     },
+    locale() {
+      return this.panel.fields[0].locale;
+    },
+    title() {
+      return this.panel.fields[0].title;
+    },
   },
   methods: {
     initializeStripeCard() {
-      console.log(this.getStripeKey);
-      const displayError = document.getElementById("card-errors");
-      displayError.classList.add("hidden");
-      this.stripeInstance = Stripe(this.getStripeKey);
+      console.log("stripe key: ", this.getStripeKey);
+      console.log("stripe locale: ", this.locale);
+      this.stripeInstance = Stripe(this.getStripeKey, {
+        locale: this.locale,
+      });
       const stripeElements = this.stripeInstance.elements();
       this.stripeCard = stripeElements.create("card", { style: this.style });
 
@@ -85,16 +110,16 @@ export default {
       // Handle real-time validation errors from the card Element.
       this.stripeCard.addEventListener("change", function (event) {
         if (event.error) {
-          displayError.textContent = event.error.message;
-          displayError.classList.remove("hidden");
+          this.errorMessage = event.error.message;
         } else {
-          displayError.classList.add("hidden");
-          displayError.textContent = "";
+          this.errorMessage = null;
         }
       });
     },
     async onSubmitCreditCard() {
       console.log("updating");
+      this.errorMessage = null;
+      this.loading = true;
 
       const { setupIntent, error } = await this.stripeInstance.confirmCardSetup(
         this.getClientSecret,
@@ -106,14 +131,16 @@ export default {
       );
 
       if (error) {
+        console.log("got error with setupintent", error);
         // Display "error.message" to the user...
-        var errorElement = document.getElementById("card-errors");
-        errorElement.textContent = error.message;
-      } else {
-        // The card has been verified successfully...
-        // Send the token to your server.
-        this.saveToBackend(setupIntent);
+        this.errorMessage = error.message;
+        this.loading = false;
+        return;
       }
+
+      // The card has been verified successfully...
+      // Send the token to your server.
+      this.saveToBackend(setupIntent);
     },
     saveToBackend(setupIntent) {
       console.log(setupIntent);
@@ -136,7 +163,7 @@ export default {
           //   this.cardLastFour =
         })
         .catch((error) => {
-          console.log(error);
+          console.log("error on update card", error);
           this.loading = false;
           this.initializeStripeCard();
         });

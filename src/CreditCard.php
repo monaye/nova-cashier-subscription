@@ -8,30 +8,40 @@ class CreditCard extends ResourceTool
 {
 
     /**
-    * Subscription constructor.
-    *
-    * @param string $subscription
-    */
-    public function __construct($client_secret, $stripe_key)
+     * Subscription constructor.
+     *
+     * @param string $subscription
+     */
+    public function __construct($client_secret, $stripe_key = NULL)
     {
         parent::__construct();
 
-        
+        $this->locale(config("app.locale"));
+
         $this->withMeta([
             'client_secret' => $client_secret,
-            'stripe_key' => $stripe_key,
-            'card_last_four' => \Auth::user()->owner->card_last_four,
+            'stripe_key' => $stripe_key ?? config("cashier.key"),
+            'card_last_four' => auth()->user()->card_last_four,
         ]);
     }
 
     /**
-     * Get the displayable name of the resource tool.
+     * Get the displayable title of the field
      *
      * @return string
      */
-    public function name()
+    public function title($title)
     {
-        return 'Nova Cashier Credit Card';
+        return $this->withMeta([
+            'title' => $title,
+        ]);
+    }
+
+    public function locale($locale)
+    {
+        return $this->withMeta([
+            'locale' => $locale
+        ]);
     }
 
     /**

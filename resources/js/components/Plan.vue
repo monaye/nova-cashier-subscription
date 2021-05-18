@@ -1,15 +1,24 @@
 <template>
   <div>
-    <heading class="mb-6">{{ name }}</heading>
+    <heading v-if="title" class="mb-6">{{ title }}</heading>
 
-    <loading-card :loading="loading" class="px-6 py-4">
+    <loading-card
+      :loading="loading"
+      dusk="nova-subscription-plan-card"
+      class="px-6 py-4"
+    >
       <!-- <card class="card mb-6 py-3 px-6"> -->
       <div class="flex">
         <div class="w-1/4 py-4">
-          <h4 class="font-normal text-80">{{ planTitle }}</h4>
+          <h4 class="font-normal text-80">{{ __("Subscription Plan") }}</h4>
         </div>
         <div class="w-3/4 py-4">
-          <div v-for="plan in this.plans" class="mb-6" :key="plan.value">
+          <div
+            v-for="plan in this.plans"
+            :dusk="plan.value"
+            class="mb-6"
+            :key="plan.value"
+          >
             <label class="inline-flex items-center text-80">
               <input
                 type="radio"
@@ -22,15 +31,16 @@
             </label>
           </div>
           <div v-if="!getCardLastFour" class="text-danger">
-            Please add credit card information to change a plan.
+            {{ __("Please add credit card information to change a plan.") }}
           </div>
           <button
             type="submit"
+            dusk="submit-update-subscription-plan"
             class="btn btn-default btn-primary mt-6"
             v-bind:class="[getCardLastFour ? '' : disabledClass]"
             v-on:click="updatePlan"
           >
-            Update Plan
+            {{ __("Update Plan") }}
           </button>
         </div>
       </div>
@@ -98,11 +108,8 @@ export default {
     plans() {
       return this.panel.fields[0].plans;
     },
-    name() {
-      return this.panel.name;
-    },
-    planTitle() {
-      return this.panel.planTitle || "Plans";
+    title() {
+      return this.panel.fields[0].title;
     },
     getCardLastFour() {
       return this.cardLastFour || this.panel.fields[0].card_last_four;

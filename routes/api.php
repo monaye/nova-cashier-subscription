@@ -18,5 +18,5 @@ use Illuminate\Support\Facades\Route;
 //     //
 // });
 
-Route::post('/change-plan', '\App\Http\Controllers\ShopAdmin\SubscriptionController@changeSubscription');
-Route::post('/update-card', '\App\Http\Controllers\ShopAdmin\SubscriptionController@updateCreditCard');
+Route::post('/change-plan', config('nova-cashier-subscription.handlePlanUpdate'));
+Route::post('/update-card', config('nova-cashier-subscription.handleCreditCardUpdate'));
