@@ -2,6 +2,8 @@
 
 namespace Monaye\NovaCashierSubscription;
 
+use Exception;
+use Laravel\Cashier\Billable;
 use Laravel\Nova\ResourceTool;
 
 class CreditCard extends ResourceTool
@@ -12,8 +14,13 @@ class CreditCard extends ResourceTool
      *
      * @param string $subscription
      */
-    public function __construct($client_secret, $stripe_key = NULL)
+    public function __construct($client_secret, $stripe_key = NULL, $user = NULL)
     {
+
+        if (!in_array(Billable::class, class_uses($user))) {
+            throw new Exception("third parameters passed to the Plan constructor should use Laravel\Cashier\Billable trait.", 1);
+        }
+
         parent::__construct();
 
         $this->locale(config("app.locale"));
@@ -21,7 +28,7 @@ class CreditCard extends ResourceTool
         $this->withMeta([
             'client_secret' => $client_secret,
             'stripe_key' => $stripe_key ?? config("cashier.key"),
-            'card_last_four' => auth()->user()->card_last_four,
+            'card_last_four' => $user ? $user->card_last_four : auth()->user()->card_last_four,
         ]);
     }
 
