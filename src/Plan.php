@@ -28,6 +28,7 @@ class Plan extends ResourceTool
             'plans' => $plans,
             'card_last_four' => $user ? $user->card_last_four : auth()->user()->card_last_four,
             'subscription_plan' => $user ? $user->subscriptions()->first() : auth()->user()->subscriptions()->first(),
+            'onGracePeriod' => $user ? $user->subscriptions()->first()->onGracePeriod() : auth()->user()->subscriptions()->first()->onGracePeriod(),
         ]);
         // $this->withMeta(compact('plans'));
     }

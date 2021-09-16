@@ -5,10 +5,13 @@ Nova Cashier Subscription package provide two fields, credit card and plans user
 Features:
  - save credit card information (Stripe)
  - change subscribe plan (Stripe)
- 
+ - display message if user is on active plan
+ - display message if user is on trial
+ - display message if user canceled and if user is still have trial period left
+ - display message if user canceled and is user is still on grace period
+  
 
-*The component assumed user is already subscribed to one of your plan. If you provide a free plan, you can create a $0 plan on the stripe and add  user to the free plan during their signup. User is not required to have a credit card to subscribe to the free plan.*
- 
+
 
 ## Table of Contents
 
@@ -94,3 +97,11 @@ All the revenue generate from this software will be donate back to following:
 1. To open source community (50%)
 2. To organization that support education for children (25%)
 3. To organization that fight for the Global Warming (25%)
+
+
+## More Screenshots
+
+
+![grace-period-message](https://user-images.githubusercontent.com/1147313/133651929-3be7fe4a-9b00-41c3-823d-02f11a36136b.png)
+![registred credit card](https://user-images.githubusercontent.com/1147313/133651937-c82b1c1f-f3b0-479a-895c-b030aac5c116.png)
+![active message](https://user-images.githubusercontent.com/1147313/133651940-ac7203a4-79ab-4101-9a45-379b0c267280.png)

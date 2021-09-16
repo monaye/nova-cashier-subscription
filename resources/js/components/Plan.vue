@@ -7,12 +7,36 @@
       dusk="nova-subscription-plan-card"
       class="px-6 py-4"
     >
+      <div v-if="this.onGracePeriod" class="flex">
+        <div class="w-1/4 py-4 max-w-sm"></div>
+        <div class="w-3/4 py-4">
+          {{
+            __(
+              'You\'re canceled ":planName" plan has grace period until: :gracePeriodEndAt',
+              {
+                planName: planName,
+                gracePeriodEndAt: this.gracePeriodEndAt,
+              }
+            )
+          }}
+        </div>
+      </div>
       <div v-if="this.isOnTrial" class="flex">
         <div class="w-1/4 py-4 max-w-sm"></div>
         <div class="w-3/4 py-4">
           {{
             __("You're trial will end at : :trialEndAt", {
               trialEndAt: this.trialEndAt,
+            })
+          }}
+        </div>
+      </div>
+      <div v-if="this.isActive" class="flex">
+        <div class="w-1/4 py-4 max-w-sm"></div>
+        <div class="w-3/4 py-4">
+          {{
+            __("You're subscription to :planName is active.", {
+              planName: isOnPlanName,
             })
           }}
         </div>
@@ -81,6 +105,8 @@ export default {
       disabledClass: "opacity-50 cursor-not-allowed",
       cardLastFour: null,
       subscriptionPlan: this.panel.fields[0].subscription_plan,
+      //   onGracePeriod: this.penel.fields[0].onGracePeriod,
+      onGracePeriod: this.panel.fields[0].onGracePeriod,
       currentPlan:
         this.panel.fields[0].subscription_plan &&
         !this.panel.fields[0].subscription_plan.ends_at
@@ -93,7 +119,6 @@ export default {
       "nova-cashier-subscription-credit-card-changed",
       this.updateCardLastFour
     );
-    this.currentPlan = this.originalPlan;
   },
   mounted() {
     //
@@ -129,6 +154,7 @@ export default {
           }
           //   this.currentPlan = response.data.subscription_plan;
           this.subscriptionPlan = response.data.subscription_plan;
+          this.onGracePeriod = response.data.onGracePeriod;
         })
         .catch((error) => {
           console.log(error);
@@ -170,6 +196,29 @@ export default {
     },
     trialEndAt() {
       return new Date(this.subscriptionPlan.trial_ends_at).toLocaleDateString(
+        this.panel.fields[0].locale,
+        {
+          dateStyle: "long",
+        }
+      );
+    },
+    isOnPlanName() {
+      return this.plans.find((plan) => plan.value === this.originalPlan).label;
+    },
+    planName() {
+      return this.plans.find(
+        (plan) => plan.value === this.subscriptionPlan.stripe_plan
+      ).label;
+    },
+    isActive() {
+      return (
+        this.subscriptionPlan &&
+          this.subscriptionPlan.stripe_status === "active",
+        !this.subscriptionPlan.ends_at
+      );
+    },
+    gracePeriodEndAt() {
+      return new Date(this.subscriptionPlan.ends_at).toLocaleDateString(
         this.panel.fields[0].locale,
         {
           dateStyle: "long",
