@@ -195,12 +195,14 @@ export default {
       );
     },
     trialEndAt() {
-      return new Date(this.subscriptionPlan.trial_ends_at).toLocaleDateString(
-        this.panel.fields[0].locale,
-        {
-          dateStyle: "long",
-        }
-      );
+      if (this.subscriptionPlan) {
+        return new Date(this.subscriptionPlan.trial_ends_at).toLocaleDateString(
+          this.panel.fields[0].locale,
+          {
+            dateStyle: "long",
+          }
+        );
+      }
     },
     isOnPlanName() {
       return this.plans.find((plan) => plan.value === this.originalPlan).label;
@@ -214,16 +216,18 @@ export default {
       return (
         this.subscriptionPlan &&
           this.subscriptionPlan.stripe_status === "active",
-        !this.subscriptionPlan.ends_at
+        this.subscriptionPlan && !this.subscriptionPlan.ends_at
       );
     },
     gracePeriodEndAt() {
-      return new Date(this.subscriptionPlan.ends_at).toLocaleDateString(
-        this.panel.fields[0].locale,
-        {
-          dateStyle: "long",
-        }
-      );
+      if (this.subscriptionPlan) {
+        return new Date(this.subscriptionPlan.ends_at).toLocaleDateString(
+          this.panel.fields[0].locale,
+          {
+            dateStyle: "long",
+          }
+        );
+      }
     },
   },
 };
